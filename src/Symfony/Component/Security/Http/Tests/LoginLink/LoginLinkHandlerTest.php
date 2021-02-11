@@ -48,7 +48,7 @@ class LoginLinkHandlerTest extends TestCase
      * @dataProvider provideCreateLoginLinkData
      * @group time-sensitive
      */
-    public function testCreateLoginLink($user, $locale, array $extraProperties)
+    public function testCreateLoginLink($user, array $extraProperties, $locale = null)
     {
         $this->router->expects($this->once())
             ->method('generate')
@@ -74,25 +74,22 @@ class LoginLinkHandlerTest extends TestCase
     {
         yield [
             new TestLoginLinkHandlerUser('weaverryan', 'ryan@symfonycasts.com', 'pwhash'),
-            null,
             ['emailProperty' => 'ryan@symfonycasts.com', 'passwordProperty' => 'pwhash'],
-        ];
-
-        yield [
-            new TestLoginLinkHandlerUser('weaverryan', 'ryan@symfonycasts.com', 'pwhash'),
             'en',
+        ];
+
+        yield [
+            new TestLoginLinkHandlerUser('weaverryan', 'ryan@symfonycasts.com', 'pwhash'),
             ['emailProperty' => 'ryan@symfonycasts.com', 'passwordProperty' => 'pwhash'],
         ];
 
         yield [
             new TestLoginLinkHandlerUser('weaverryan', 'ryan@symfonycasts.com', 'pwhash'),
-            null,
             ['lastAuthenticatedAt' => ''],
         ];
 
         yield [
             new TestLoginLinkHandlerUser('weaverryan', 'ryan@symfonycasts.com', 'pwhash', new \DateTime('2020-06-01 00:00:00', new \DateTimeZone('+0000'))),
-            null,
             ['lastAuthenticatedAt' => '2020-06-01T00:00:00+00:00'],
         ];
     }
