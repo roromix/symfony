@@ -49,7 +49,7 @@ final class LoginLinkHandler implements LoginLinkHandlerInterface
         $this->expiredStorage = $expiredStorage;
     }
 
-    public function createLoginLink(UserInterface $user): LoginLinkDetails
+    public function createLoginLink(UserInterface $user, ?string $locale = null): LoginLinkDetails
     {
         $expiresAt = new \DateTimeImmutable(sprintf('+%d seconds', $this->options['lifetime']));
 
@@ -58,6 +58,7 @@ final class LoginLinkHandler implements LoginLinkHandlerInterface
             'user' => $user->getUsername(),
             'expires' => $expires,
             'hash' => $this->computeSignatureHash($user, $expires),
+            '_locale' => $locale,
         ];
 
         $url = $this->urlGenerator->generate(

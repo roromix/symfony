@@ -27,6 +27,7 @@ class FirewallAwareLoginLinkHandlerTest extends TestCase
     public function testSuccessfulDecoration()
     {
         $user = $this->createMock(UserInterface::class);
+        $locale = null;
         $linkDetails = new LoginLinkDetails('http://example.com', new \DateTimeImmutable());
         $request = Request::create('http://example.com/verify');
 
@@ -34,7 +35,7 @@ class FirewallAwareLoginLinkHandlerTest extends TestCase
         $loginLinkHandler = $this->createMock(LoginLinkHandlerInterface::class);
         $loginLinkHandler->expects($this->once())
             ->method('createLoginLink')
-            ->with($user)
+            ->with($user, $locale)
             ->willReturn($linkDetails);
         $loginLinkHandler->expects($this->once())
             ->method('consumeLoginLink')
@@ -47,7 +48,7 @@ class FirewallAwareLoginLinkHandlerTest extends TestCase
         $requestStack->push($request);
 
         $linker = new FirewallAwareLoginLinkHandler($firewallMap, $locator, $requestStack);
-        $actualLinkDetails = $linker->createLoginLink($user);
+        $actualLinkDetails = $linker->createLoginLink($user, $locale);
         $this->assertSame($linkDetails, $actualLinkDetails);
 
         $actualUser = $linker->consumeLoginLink($request);

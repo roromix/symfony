@@ -48,16 +48,17 @@ class LoginLinkHandlerTest extends TestCase
      * @dataProvider provideCreateLoginLinkData
      * @group time-sensitive
      */
-    public function testCreateLoginLink($user, array $extraProperties)
+    public function testCreateLoginLink($user, $locale, array $extraProperties)
     {
         $this->router->expects($this->once())
             ->method('generate')
             ->with(
                 'app_check_login_link_route',
-                $this->callback(function ($parameters) use ($extraProperties) {
+                $this->callback(function ($parameters) use ($locale, $extraProperties) {
                     return 'weaverryan' == $parameters['user']
                         && isset($parameters['expires'])
                         && isset($parameters['hash'])
+                        && $locale == $parameters['_locale']
                         // make sure hash is what we expect
                         && $parameters['hash'] === $this->createSignatureHash('weaverryan', time() + 600, array_values($extraProperties));
                 }),
@@ -65,7 +66,7 @@ class LoginLinkHandlerTest extends TestCase
             )
             ->willReturn('https://example.com/login/verify?user=weaverryan&hash=abchash&expires=1601235000');
 
-        $loginLink = $this->createLinker([], array_keys($extraProperties))->createLoginLink($user);
+        $loginLink = $this->createLinker([], array_keys($extraProperties))->createLoginLink($user, $locale);
         $this->assertSame('https://example.com/login/verify?user=weaverryan&hash=abchash&expires=1601235000', $loginLink->getUrl());
     }
 
@@ -73,16 +74,25 @@ class LoginLinkHandlerTest extends TestCase
     {
         yield [
             new TestLoginLinkHandlerUser('weaverryan', 'ryan@symfonycasts.com', 'pwhash'),
+            null,
             ['emailProperty' => 'ryan@symfonycasts.com', 'passwordProperty' => 'pwhash'],
         ];
 
         yield [
             new TestLoginLinkHandlerUser('weaverryan', 'ryan@symfonycasts.com', 'pwhash'),
+            'en',
+            ['emailProperty' => 'ryan@symfonycasts.com', 'passwordProperty' => 'pwhash'],
+        ];
+
+        yield [
+            new TestLoginLinkHandlerUser('weaverryan', 'ryan@symfonycasts.com', 'pwhash'),
+            null,
             ['lastAuthenticatedAt' => ''],
         ];
 
         yield [
             new TestLoginLinkHandlerUser('weaverryan', 'ryan@symfonycasts.com', 'pwhash', new \DateTime('2020-06-01 00:00:00', new \DateTimeZone('+0000'))),
+            null,
             ['lastAuthenticatedAt' => '2020-06-01T00:00:00+00:00'],
         ];
     }

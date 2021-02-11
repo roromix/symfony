@@ -37,7 +37,8 @@ class LoginLinkAuthenticationTest extends AbstractWebTestCase
         /** @var LoginLinkHandlerInterface $loginLinkHandler */
         $loginLinkHandler = self::$container->get(LoginLinkHandlerInterface::class);
         $user = new User('weaverryan', 'foo');
-        $loginLink = $loginLinkHandler->createLoginLink($user);
+        $locale = null;
+        $loginLink = $loginLinkHandler->createLoginLink($user, $locale);
         $this->assertStringContainsString('user=weaverryan', $loginLink);
         $this->assertStringContainsString('hash=', $loginLink);
         $this->assertStringContainsString('expires=', $loginLink);
